@@ -4,6 +4,7 @@ const express = require('express')
 const app = express()
 const pool = require('./db')
 const authRoutes = require('./auth')
+const authenticateToken = require('./middleware')
 
 app.use(express.json())
 app.use('/api', authRoutes)
@@ -12,8 +13,10 @@ app.get('/', (req, res) => {
     res.send("Job Application Tracker API is running.")
 })
 
-app.post('/insert', async (req, res) => {
+app.post('/insert', authenticateToken, async (req, res) => {
     try{
+        const user  = req.user
+
         const { position, company } = req.body
 
         if (!position || !company) {
@@ -22,10 +25,11 @@ app.post('/insert', async (req, res) => {
 
         await pool.query(
             'INSERT INTO jobtracker (user_id, company, position) VALUES ($1, $2, $3)',
-            [1, company, position]
+            [user.userId, company, position]
         )
 
         res.json({ 
+            userId: `${user.userId}`,
             position: `${position}`,
             company: `${company}`
         })
