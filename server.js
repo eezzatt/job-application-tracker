@@ -40,6 +40,28 @@ app.post('/insert', authenticateToken, async (req, res) => {
     }
 })
 
+
+app.get('/retrieve', authenticateToken, async (req, res) => {
+    try {
+        const user = req.user
+
+        const result = await pool.query(
+            'SELECT * FROM jobtracker WHERE user_id = ($1)',
+            [user.userId]
+        )
+
+        if (!result.rows.length === 0) {
+            return res.status(404).json({ error: "No jobs applied"})
+        }
+
+        return res.json({ jobs: result.rows })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ error: "Internal server error"})
+    }
+})
+
 app.listen(3000, () => {
     console.log("Server running on http://localhost:3000")
 })
