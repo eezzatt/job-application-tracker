@@ -62,6 +62,36 @@ app.get('/retrieve', authenticateToken, async (req, res) => {
     }
 })
 
+
+app.put('/:jobId', authenticateToken, async (req, res) => {
+    try {
+        const user = req.user
+        const jobId = req.params.jobId
+
+        const { status } = req.body
+
+        if (!status) {
+            return res.status(400).json({ error: "Status required"})
+        }
+
+        const result = await pool.query(
+            'UPDATE jobtracker SET status = ($1) WHERE id= ($2) AND user_id = ($3) RETURNING *',
+            [status, jobId, user.userId]
+        )
+
+        if (!result.rows[0]) {
+            return res.status(404).json({ error: "Job not found"})
+        }
+
+        return res.json({ updatedJob: result.rows[0]})
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({ error: "Internal server error"})
+    }
+})
+
+
 app.listen(3000, () => {
     console.log("Server running on http://localhost:3000")
 })
