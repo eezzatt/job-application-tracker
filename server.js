@@ -5,7 +5,9 @@ const app = express()
 const pool = require('./db')
 const authRoutes = require('./auth')
 const authenticateToken = require('./middleware')
+const cors = require('cors')
 
+app.use(cors())
 app.use(express.json())
 app.use('/api', authRoutes)
 
