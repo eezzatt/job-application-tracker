@@ -52,10 +52,6 @@ app.get('/retrieve', authenticateToken, async (req, res) => {
             [user.userId]
         )
 
-        if (!result.rows.length === 0) {
-            return res.status(404).json({ error: "No jobs applied"})
-        }
-
         return res.json({ jobs: result.rows })
     }
     catch (err) {
